@@ -1,0 +1,82 @@
+# ==========================================================
+# UniSkill Hub - ASP.NET Web Forms (.NET Framework 4.8)
+# Put this file in the folder that contains UniSkillHub.sln
+# ==========================================================
+
+# ---------- Visual Studio ----------
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.DotSettings.user
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# ---------- Build output ----------
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.pdb
+*.cache
+*.log
+*.tmp
+*.tlog
+
+# ---------- NuGet (packages are restored from packages.config) ----------
+packages/
+*.nupkg
+*.nuget.props
+*.nuget.targets
+
+# ---------- Publish output ----------
+PublishScripts/
+*.pubxml
+*.pubxml.user
+*.publishproj
+PublishProfiles/
+
+# ---------- Local / secret settings ----------
+# Web.config keeps the connection string (Windows authentication, no password).
+# If you ever add a password or API key, put it in an untracked file such as Web.Local.config.
+Web.Local.config
+appsettings.local.json
+*.secrets
+.env
+
+# ---------- Local database files (the schema lives in Database/*.sql) ----------
+App_Data/*.mdf
+App_Data/*.ldf
+App_Data/*.bak
+*.mdf
+*.ldf
+*.bak
+
+# ---------- Uploaded files ----------
+# Files that students and lecturers upload while the site runs must not be committed.
+# Only each folder's Web.config and the sample files used by Database/SampleData.sql are kept.
+Uploads/*/*
+!Uploads/*/Web.config
+!Uploads/Notes/python-basics.pdf
+!Uploads/Notes/database-fundamentals.pdf
+!Uploads/Notes/html-css-cheatsheet.pdf
+!Uploads/Assignments/web-application-brief.pdf
+!Uploads/Videos/getting-started-demo.webm
+!Uploads/Audio/listening-demo.wav
+
+# ---------- Operating system / editor ----------
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
+
+# ---------- AI assistant working files ----------
+.claude/

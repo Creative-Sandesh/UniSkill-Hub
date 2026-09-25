@@ -1,0 +1,170 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.Master.cs" Inherits="UniSkillHub.SiteMaster" %>
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="UniSkill Hub - a learning portal for university students: resources, assignments, quizzes, announcements and discussion." />
+    <title><%: Page.Title %> - UniSkill Hub</title>
+
+    <%-- Lets the stylesheet know JavaScript is available (used by the scroll animations) --%>
+    <script>document.documentElement.classList.add('js');</script>
+
+    <asp:PlaceHolder runat="server">
+        <%: Scripts.Render("~/bundles/modernizr") %>
+    </asp:PlaceHolder>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <%-- Bootstrap first, then our own stylesheet so it can refine Bootstrap --%>
+    <webopt:bundlereference runat="server" path="~/Content/css" />
+    <link href="~/Css/site.css" rel="stylesheet" runat="server" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" runat="server" />
+
+    <%-- Pages can add their own (internal) CSS here --%>
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <form runat="server">
+        <asp:ScriptManager runat="server">
+            <Scripts>
+                <%--To learn more about bundling scripts in ScriptManager see https://go.microsoft.com/fwlink/?LinkID=301884 --%>
+                <%--Framework Scripts--%>
+                <asp:ScriptReference Name="MsAjaxBundle" />
+                <asp:ScriptReference Name="jquery" />
+                <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
+                <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+                <asp:ScriptReference Name="MenuStandards.js" Assembly="System.Web" Path="~/Scripts/WebForms/MenuStandards.js" />
+                <asp:ScriptReference Name="GridView.js" Assembly="System.Web" Path="~/Scripts/WebForms/GridView.js" />
+                <asp:ScriptReference Name="DetailsView.js" Assembly="System.Web" Path="~/Scripts/WebForms/DetailsView.js" />
+                <asp:ScriptReference Name="TreeView.js" Assembly="System.Web" Path="~/Scripts/WebForms/TreeView.js" />
+                <asp:ScriptReference Name="WebParts.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebParts.js" />
+                <asp:ScriptReference Name="Focus.js" Assembly="System.Web" Path="~/Scripts/WebForms/Focus.js" />
+                <asp:ScriptReference Name="WebFormsBundle" />
+                <%--Site Scripts--%>
+            </Scripts>
+        </asp:ScriptManager>
+
+        <header class="site-header">
+            <nav class="navbar navbar-expand-lg site-nav" aria-label="Main navigation">
+                <div class="container">
+                    <a class="brand" runat="server" href="~/">
+                        <span class="brand-mark" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></svg>
+                        </span>
+                        UniSkill <span class="brand-accent">Hub</span>
+                    </a>
+
+                    <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#siteNav"
+                        aria-controls="siteNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="siteNav">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-lg-1">
+
+                            <%-- Guest (not logged in) --%>
+                            <asp:PlaceHolder ID="phGuestNav" runat="server">
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/">Home</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Resources/BrowseResources" data-match="/resources">Resources</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Announcements">Announcements</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Forum/Forum" data-match="/forum">Forum</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/About">About</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Contact">Contact</a></li>
+                            </asp:PlaceHolder>
+
+                            <%-- Registered student --%>
+                            <asp:PlaceHolder ID="phStudentNav" runat="server" Visible="false">
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Student/Dashboard">Dashboard</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Resources/BrowseResources" data-match="/resources">Resources</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Student/Assignments">Assignments</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Student/Quizzes">Quizzes</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Announcements">Announcements</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Forum/Forum" data-match="/forum">Forum</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Student/Profile">Profile</a></li>
+                            </asp:PlaceHolder>
+
+                            <%-- Administrator / lecturer --%>
+                            <asp:PlaceHolder ID="phAdminNav" runat="server" Visible="false">
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Admin/Dashboard">Dashboard</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Admin/ManageUsers">Users</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Admin/ManageResources">Resources</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Admin/ManageAssignments">Assignments</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Admin/ManageSubmissions">Submissions</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Admin/ManageQuizzes">Quizzes</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Admin/ManageAnnouncements">Announcements</a></li>
+                                <li class="nav-item"><a class="nav-link" runat="server" href="~/Admin/ManageForum">Forum</a></li>
+                            </asp:PlaceHolder>
+                        </ul>
+
+                        <div class="nav-actions d-flex align-items-center gap-2">
+                            <asp:PlaceHolder ID="phGuestActions" runat="server">
+                                <a class="btn btn-outline-primary" runat="server" href="~/Account/Login">Login</a>
+                                <a class="btn btn-primary" runat="server" href="~/Account/Register">Register</a>
+                            </asp:PlaceHolder>
+
+                            <asp:PlaceHolder ID="phMemberActions" runat="server" Visible="false">
+                                <span class="nav-user me-lg-2">
+                                    <span class="nav-user-avatar" aria-hidden="true"><asp:Literal ID="litUserInitial" runat="server"></asp:Literal></span>
+                                    <asp:Label ID="lblUserName" runat="server"></asp:Label>
+                                </span>
+                                <a class="btn btn-outline-primary" runat="server" href="~/Account/Logout">Logout</a>
+                            </asp:PlaceHolder>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <main id="main-content">
+            <asp:ContentPlaceHolder ID="MainContent" runat="server">
+            </asp:ContentPlaceHolder>
+        </main>
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-lg-5">
+                        <a class="brand mb-3" runat="server" href="~/">
+                            <span class="brand-mark" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></svg>
+                            </span>
+                            UniSkill <span class="brand-accent">Hub</span>
+                        </a>
+                        <p class="mb-0" style="max-width: 24rem;">A web-based learning portal that brings lecture notes, assignments, quizzes, announcements and discussion together for university students.</p>
+                    </div>
+                    <div class="col-6 col-lg-3 offset-lg-1">
+                        <h2 class="footer-title">Explore</h2>
+                        <ul class="footer-links">
+                            <li><a runat="server" href="~/Resources/BrowseResources">Resources</a></li>
+                            <li><a runat="server" href="~/Announcements">Announcements</a></li>
+                            <li><a runat="server" href="~/Forum/Forum">Forum</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <h2 class="footer-title">Company</h2>
+                        <ul class="footer-links">
+                            <li><a runat="server" href="~/About">About</a></li>
+                            <li><a runat="server" href="~/Contact">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    &copy; <%: DateTime.Now.Year %> UniSkill Hub. Built with ASP.NET Web Forms.
+                </div>
+            </div>
+        </footer>
+    </form>
+
+    <asp:PlaceHolder runat="server">
+        <%: Scripts.Render("~/Scripts/bootstrap.js") %>
+    </asp:PlaceHolder>
+    <script src="<%= ResolveUrl("~/Scripts/site.js") %>"></script>
+</body>
+</html>
