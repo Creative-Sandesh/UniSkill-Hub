@@ -223,8 +223,9 @@ namespace UniSkillHub.Student
             {
                 attemptId = (int)DBHelper.ExecuteScalar(sql, parameters.ToArray());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("TakeQuiz: could not save the attempt for quiz " + _quizId, ex);
                 lblMessage.Text = "Sorry, we could not save your quiz right now. Your answers are still on this page - please try submitting again.";
                 lblMessage.Visible = true;
                 return;

@@ -2,12 +2,17 @@ using System;
 using System.Data;
 using System.IO;
 using System.Web;
+using System.Web.Security;
 using System.Web.UI;
 
 namespace UniSkillHub.Resources
 {
     public partial class ResourceDetails : Page
     {
+        // Used by the picture in the side card (see the .aspx).
+        protected string CategoryImage { get; private set; }
+        protected string CategoryLabel { get; private set; }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (IsPostBack) return;
@@ -48,6 +53,8 @@ namespace UniSkillHub.Resources
             litTitle.Text = Server.HtmlEncode(title);
             litTypeBadge.Text = "<span class=\"type-badge type-" + type.ToLowerInvariant() + "\">" + Server.HtmlEncode(type) + "</span>";
             litCategory.Text = Server.HtmlEncode((string)row["CategoryName"]);
+            CategoryLabel = (string)row["CategoryName"];
+            CategoryImage = Utility.CategoryImageUrl(CategoryLabel);
             litDate.Text = ((DateTime)row["DateCreated"]).ToString("dd MMM yyyy");
             litAuthor.Text = Server.HtmlEncode((string)row["Author"]);
 
@@ -99,6 +106,9 @@ namespace UniSkillHub.Resources
                     pnlDownload.Visible = true;
                     litFileName.Text = Server.HtmlEncode(Path.GetFileName(filePath));
                     lnkDownload.HRef = "~/Resources/Download.ashx?id=" + resourceId;
+
+                    // Optional AI summary: the button only exists when a Gemini key is configured.
+                    pnlSummarize.Visible = GeminiHelper.IsConfigured && GeminiHelper.CanSummarize(filePath);
                 }
                 else
                 {
@@ -114,6 +124,62 @@ namespace UniSkillHub.Resources
             {
                 pnlNothing.Visible = true;
             }
+        }
+
+        // ---------- optional AI summary ----------
+
+        protected void btnSummarize_Click(object sender, EventArgs e)
+        {
+            if (!Request.IsAuthenticated)
+            {
+                FormsAuthentication.RedirectToLoginPage();
+                return;
+            }
+
+            // Page_Load does not run its checks on a postback, so everything is checked again here
+            // and the file path comes from the database - never from the form.
+            int resourceId;
+            if (!int.TryParse(Request.QueryString["id"], out resourceId)) return;
+
+            DataTable dt = DBHelper.GetDataTable(
+                "SELECT FilePath FROM Resources " +
+                "WHERE ResourceID = @ResourceID AND (Status = 'Published' OR @IsAdmin = 1) AND FilePath IS NOT NULL",
+                DBHelper.Param("@ResourceID", resourceId),
+                DBHelper.Param("@IsAdmin", User.IsInRole("Admin") ? 1 : 0));
+
+            string filePath = dt.Rows.Count == 0 ? null : (string)dt.Rows[0]["FilePath"];
+            string fullPath = FileHelper.ResolveInsideUploads(Context, filePath);
+
+            if (fullPath == null || !GeminiHelper.IsConfigured || !GeminiHelper.CanSummarize(filePath))
+            {
+                ShowSummaryError("A summary is not available for this resource.");
+                return;
+            }
+
+            try
+            {
+                string summary = GeminiHelper.GetSummary(Utility.CurrentUserId, fullPath);
+
+                // The AI's text is untrusted: encode it first, then turn line breaks into HTML.
+                litSummary.Text = "<p>" + Server.HtmlEncode(summary).Replace("**", "")
+                    .Replace("\r\n", "\n").Replace("\n\n", "</p><p>").Replace("\n", "<br />") + "</p>";
+                pnlSummary.Visible = true;
+            }
+            catch (GeminiException ex)
+            {
+                ShowSummaryError(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("ResourceDetails: could not summarize resource " + resourceId, ex);
+                ShowSummaryError("Sorry, the summary could not be made right now. Please try again later.");
+            }
+        }
+
+        private void ShowSummaryError(string message)
+        {
+            lblSummaryError.Text = Server.HtmlEncode(message);
+            lblSummaryError.Visible = true;
         }
 
         // ---------- helpers ----------

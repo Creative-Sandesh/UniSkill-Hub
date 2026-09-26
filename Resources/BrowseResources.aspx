@@ -50,6 +50,8 @@
                 <ItemTemplate>
                     <div class="col-md-6 col-lg-4">
                         <article class="resource-card">
+                            <%-- decorative: the category name is written right below --%>
+                            <img class="resource-thumb" src='<%# CategoryImage(Eval("CategoryName")) %>' alt="" width="640" height="360" loading="lazy" />
                             <div class="resource-card-top">
                                 <span class='type-badge type-<%# Eval("ResourceType").ToString().ToLower() %>'><%#: Eval("ResourceType") %></span>
                                 <span class="resource-category"><%#: Eval("CategoryName") %></span>
@@ -72,6 +74,7 @@
         </div>
 
         <asp:Panel ID="pnlEmpty" runat="server" Visible="false" CssClass="empty-state">
+            <img class="empty-art" src="<%: ResolveUrl("~/Images/empty-search.svg") %>" alt="" width="480" height="320" />
             <h2>No resources found</h2>
             <p>Try a different search word, or clear the filters.</p>
             <a class="btn btn-primary" runat="server" href="~/Resources/BrowseResources">Show all resources</a>

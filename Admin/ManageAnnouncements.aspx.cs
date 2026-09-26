@@ -270,8 +270,9 @@ namespace UniSkillHub.Admin
                     if (rows == 0) { ShowMessage("That announcement no longer exists.", false); pnlForm.Visible = false; return; }
                 }
             }
-            catch (SqlException)
+            catch (SqlException ex)
             {
+                Logger.Error("ManageAnnouncements: could not save the announcement", ex);
                 ShowMessage("Sorry, the announcement could not be saved right now. Please try again.", false);
                 return;
             }

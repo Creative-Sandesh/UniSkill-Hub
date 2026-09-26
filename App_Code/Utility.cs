@@ -8,6 +8,35 @@ namespace UniSkillHub
     /// </summary>
     public static class Utility
     {
+        /// <summary>Link to the resource list filtered to one category (the id is converted to a number first).</summary>
+        public static string CategoryLinkUrl(object categoryId)
+        {
+            return VirtualPathUtility.ToAbsolute("~/Resources/BrowseResources") + "?category=" + Convert.ToInt32(categoryId);
+        }
+
+        /// <summary>
+        /// The picture that goes with a resource category (Images/categories/*.svg).
+        /// Only a fixed list of file names is ever used - the category name from the database is
+        /// never put into a path - and any other category gets the general "default" picture.
+        /// </summary>
+        public static string CategoryImageUrl(object categoryName)
+        {
+            string slug = (Convert.ToString(categoryName) ?? "").Trim().ToLowerInvariant().Replace(' ', '-');
+            switch (slug)
+            {
+                case "programming":
+                case "database":
+                case "web-development":
+                case "networking":
+                case "hci":
+                    break;
+                default:
+                    slug = "default";
+                    break;
+            }
+            return VirtualPathUtility.ToAbsolute("~/Images/categories/" + slug + ".svg");
+        }
+
         /// <summary>
         /// The UserID of the logged-in user, or 0 if nobody is logged in.
         /// (Global.asax reads it from the login ticket on every request.)

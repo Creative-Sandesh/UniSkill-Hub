@@ -50,8 +50,9 @@ namespace UniSkillHub.Forum
             {
                 throw;   // normal behaviour of Response.Redirect
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("CreatePost: could not save the discussion", ex);
                 lblMessage.Text = "Sorry, we could not post your discussion right now. Please try again later.";
                 lblMessage.Visible = true;
             }

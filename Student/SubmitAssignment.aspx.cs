@@ -183,14 +183,16 @@ namespace UniSkillHub.Student
             }
             catch (SqlException ex)
             {
+                if (ex.Number != 2627 && ex.Number != 2601) Logger.Error("SubmitAssignment: could not save the submission", ex);
                 // 2627 / 2601: this student already has a submission (e.g. a double click)
                 ShowError((ex.Number == 2627 || ex.Number == 2601)
                     ? "You have already submitted this assignment. Please reload the page."
                     : "Sorry, we could not save your submission right now. Please try again later.");
                 return;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("SubmitAssignment: could not save the submission", ex);
                 ShowError("Sorry, we could not save your submission right now. Please try again later.");
                 return;
             }

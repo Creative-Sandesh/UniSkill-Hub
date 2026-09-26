@@ -70,6 +70,21 @@ namespace UniSkillHub.Resources
         protected global::System.Web.UI.WebControls.Literal litMedia;
 
         /// <summary>
+        /// pnlSummary control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Panel pnlSummary;
+
+        /// <summary>
+        /// litSummary control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal litSummary;
+
+        /// <summary>
+        /// lblSummaryError control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Label lblSummaryError;
+
+        /// <summary>
         /// pnlDownload control.
         /// </summary>
         protected global::System.Web.UI.WebControls.Panel pnlDownload;
@@ -83,6 +98,16 @@ namespace UniSkillHub.Resources
         /// lnkDownload control.
         /// </summary>
         protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkDownload;
+
+        /// <summary>
+        /// pnlSummarize control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Panel pnlSummarize;
+
+        /// <summary>
+        /// btnSummarize control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Button btnSummarize;
 
         /// <summary>
         /// pnlLink control.

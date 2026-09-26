@@ -45,8 +45,9 @@ namespace UniSkillHub.Student
                     DBHelper.Param("@UserID", Utility.CurrentUserId));
                 args.IsValid = ((int)count == 0);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("Profile: could not check whether the email is already used", ex);
                 args.IsValid = true;   // the UPDATE below will fail and show a friendly message
             }
         }
@@ -70,12 +71,14 @@ namespace UniSkillHub.Student
             catch (SqlException ex)
             {
                 bool duplicate = (ex.Number == 2627 || ex.Number == 2601);
+                if (!duplicate) Logger.Error("Profile: could not save the profile", ex);
                 ShowMessage(lblProfileMessage,
                     duplicate ? "Another account already uses that email."
                               : "Sorry, we could not save your changes right now. Please try again later.", false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("Profile: could not save the profile", ex);
                 ShowMessage(lblProfileMessage, "Sorry, we could not save your changes right now. Please try again later.", false);
             }
         }
@@ -114,8 +117,9 @@ namespace UniSkillHub.Student
 
                 ShowMessage(lblPasswordMessage, "Your password has been changed.", true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("Profile: could not change the password", ex);
                 ShowMessage(lblPasswordMessage, "Sorry, we could not change your password right now. Please try again later.", false);
             }
         }

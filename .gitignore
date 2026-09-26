@@ -68,6 +68,12 @@ Uploads/*/*
 !Uploads/Videos/getting-started-demo.webm
 !Uploads/Audio/listening-demo.wav
 
+# ---------- Secret keys (see Secrets.config.example) ----------
+Secrets.config
+
+# ---------- Error logs (App_Code/Logger.cs) ----------
+App_Data/Logs/
+
 # ---------- Operating system / editor ----------
 Thumbs.db
 ehthumbs.db
@@ -79,4 +85,10 @@ Desktop.ini
 .vscode/
 
 # ---------- AI assistant working files ----------
-.claude/
+
+.editorconfig
+.Secrets.config
+implementation_requirement.md
+UniSkill_Hub_WebForms_Implementation_Requirements.md
+design-ui-designer.md
+prompt.md

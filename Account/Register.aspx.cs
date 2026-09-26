@@ -39,8 +39,9 @@ namespace UniSkillHub.Account
                     DBHelper.Param("@Value", value));
                 return (int)count > 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("Register: could not check whether the " + column + " is already used", ex);
                 // If the database cannot be reached, skip this check: the INSERT in
                 // btnRegister_Click will fail too and show a friendly message.
                 return false;
@@ -82,12 +83,14 @@ namespace UniSkillHub.Account
                 }
                 else
                 {
+                    Logger.Error("Register: could not create the account", ex);
                     ShowError("Sorry, we could not create your account right now. Please try again later.");
                 }
                 return;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("Register: could not create the account", ex);
                 ShowError("Sorry, we could not create your account right now. Please try again later.");
                 return;
             }

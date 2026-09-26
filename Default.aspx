@@ -136,6 +136,35 @@
         </div>
     </section>
 
+    <%-- CATEGORIES (from the database: each tile shows how many published resources it holds) --%>
+    <asp:Panel ID="pnlCategories" runat="server" CssClass="section">
+        <div class="container" role="region" aria-labelledby="categories-heading">
+            <header class="text-center mb-5 reveal">
+                <h2 id="categories-heading" class="section-title">Explore by category</h2>
+                <p class="section-lead mt-2">Notes, videos and audio lessons, organised by subject.</p>
+            </header>
+
+            <div class="row g-4 justify-content-center">
+                <asp:Repeater ID="rptCategories" runat="server">
+                    <ItemTemplate>
+                        <div class="col-sm-6 col-lg-4 reveal">
+                            <a class="category-tile" href='<%# CategoryLink(Eval("CategoryID")) %>'>
+                                <figure class="category-figure">
+                                    <img src='<%# CategoryImage(Eval("CategoryName")) %>' alt='<%#: Eval("CategoryName") %> illustration' width="640" height="360" loading="lazy" />
+                                    <figcaption>
+                                        <strong><%#: Eval("CategoryName") %></strong>
+                                        <span><%#: Eval("Description") %></span>
+                                        <span class="category-count"><%# CountText(Eval("ResourceCount")) %></span>
+                                    </figcaption>
+                                </figure>
+                            </a>
+                        </div>
+                    </ItemTemplate>
+                </asp:Repeater>
+            </div>
+        </div>
+    </asp:Panel>
+
     <%-- HOW IT WORKS --%>
     <section class="section" aria-labelledby="steps-heading">
         <div class="container">

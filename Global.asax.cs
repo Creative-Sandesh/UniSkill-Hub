@@ -53,7 +53,7 @@ namespace UniSkillHub
                 if (ShouldCheckAccount(context.Request))
                 {
                     string currentRole;
-                    if (!TryGetActiveRole(userId, out currentRole))
+                    if (!AccountCheck.TryGetActiveRole(userId, out currentRole))
                     {
                         FormsAuthentication.SignOut();
                         context.User = new GenericPrincipal(new GenericIdentity(""), new string[0]);
@@ -75,33 +75,19 @@ namespace UniSkillHub
             return extension == "" || extension == ".aspx" || extension == ".ashx";
         }
 
-        // Returns false when the account no longer exists or is not Active.
-        // If the database cannot be reached the check is skipped (the page itself would fail anyway).
-        private static bool TryGetActiveRole(int userId, out string role)
-        {
-            role = null;
-            try
-            {
-                System.Data.DataTable dt = DBHelper.GetDataTable(
-                    "SELECT Role, Status FROM Users WHERE UserID = @UserID",
-                    DBHelper.Param("@UserID", userId));
-
-                if (dt.Rows.Count == 0 || (string)dt.Rows[0]["Status"] != "Active") return false;
-
-                role = (string)dt.Rows[0]["Role"];
-                return true;
-            }
-            catch (Exception)
-            {
-                return true;
-            }
-        }
-
         // ASP.NET refuses uploads bigger than maxRequestLength before any page code runs
         // and would show its technical error page. For the assignment upload page we
         // send the student back to the form with a friendly "file too large" message.
         void Application_Error(object sender, EventArgs e)
         {
+            // Write every real error to App_Data/Logs first (a plain 404 is not worth logging).
+            Exception lastError = Server.GetLastError();
+            HttpException lastHttp = lastError as HttpException;
+            if (lastError != null && !(lastHttp != null && lastHttp.GetHttpCode() == 404))
+            {
+                Logger.Error("Unhandled error", lastError);
+            }
+
             // The "too large" error is usually wrapped inside another exception
             // (HttpUnhandledException), so look through the whole chain.
             bool tooLarge = false;

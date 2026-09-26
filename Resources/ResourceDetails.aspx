@@ -44,17 +44,36 @@
 
                         <%-- Video / audio player (HTML5) --%>
                         <asp:Literal ID="litMedia" runat="server"></asp:Literal>
+
+                        <%-- Optional AI summary (filled in when the student clicks "Summarize with AI") --%>
+                        <asp:Panel ID="pnlSummary" runat="server" Visible="false" CssClass="ai-summary" aria-live="polite">
+                            <h2 class="h5">AI summary</h2>
+                            <div class="resource-description"><asp:Literal ID="litSummary" runat="server"></asp:Literal></div>
+                            <p class="form-text mb-0">Written by AI, so it can contain mistakes. Always check it against the original notes.</p>
+                        </asp:Panel>
+                        <asp:Label ID="lblSummaryError" runat="server" Visible="false" CssClass="alert alert-danger d-block mt-4 mb-0" role="alert"></asp:Label>
                     </article>
                 </div>
 
                 <div class="col-lg-4">
                     <aside class="surface-card">
+                        <figure class="side-figure">
+                            <img src="<%: CategoryImage %>" alt="Illustration for the <%: CategoryLabel %> category" width="640" height="360" loading="lazy" />
+                        </figure>
                         <h2 class="h5">Get this resource</h2>
 
                         <%-- File download --%>
                         <asp:Panel ID="pnlDownload" runat="server" Visible="false">
                             <p class="mb-3">File: <strong><asp:Literal ID="litFileName" runat="server"></asp:Literal></strong></p>
                             <a id="lnkDownload" runat="server" class="btn btn-primary w-100" href="~/Resources/Download.ashx">Download file</a>
+
+                            <%-- Optional AI feature: only shown to logged-in users, for PDF/TXT files, when a Gemini key is set up --%>
+                            <asp:Panel ID="pnlSummarize" runat="server" Visible="false" CssClass="mt-3">
+                                <asp:Button ID="btnSummarize" runat="server" Text="Summarize with AI" CssClass="btn btn-outline-primary w-100"
+                                    CausesValidation="false" OnClick="btnSummarize_Click"
+                                    OnClientClick="this.value = 'Summarizing, please wait...';" />
+                                <p class="form-text mt-2 mb-0">The text of this file is sent to Google Gemini to write the summary. This can take up to a minute.</p>
+                            </asp:Panel>
                         </asp:Panel>
 
                         <%-- External link --%>

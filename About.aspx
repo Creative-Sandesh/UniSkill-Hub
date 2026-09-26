@@ -37,6 +37,10 @@
 
             <div class="col-lg-5">
                 <aside class="surface-card h-100">
+                    <figure class="side-figure">
+                        <img src="<%: ResolveUrl("~/Images/hero-learning.svg") %>" alt="A laptop showing a student dashboard, with a stack of books, a quiz score of 8 out of 10 and a completed-task tick" width="800" height="520" loading="lazy" />
+                        <figcaption>Notes, assignments and quizzes together in one place.</figcaption>
+                    </figure>
                     <h2 class="h4">Who uses it</h2>
                     <p><strong>Students</strong> register to access resources, assignments, quizzes and the forum.</p>
                     <p><strong>Lecturers / administrators</strong> manage content, grade submissions and moderate discussions.</p>

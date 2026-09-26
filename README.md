@@ -19,12 +19,12 @@ Not used, on purpose: MVC, .NET Core, Entity Framework, React, Tailwind.
 
 ## Features by role
 
-**Guest** – landing page, About, Contact, browse resources, read announcements, read the forum,
-register and log in. Downloading, posting and replying need an account.
+**Guest** – landing page (with live "Explore by category" tiles built from the database), About, Contact, browse
+resources, read announcements, read the forum, register and log in. Downloading, posting and replying need an account.
 
 **Student**
 - Dashboard with live counts (open assignments, submissions, quiz attempts) and recent activity
-- Browse/search/filter resources and download files, watch video, listen to audio
+- Browse/search/filter resources (each card carries its category picture) and download files, watch video, listen to audio
 - View assignments, download the brief, upload a submission (own files only), track status, read the
   lecturer's grade and feedback
 - Timed quizzes with a server-side timer, automatic scoring, result page and answer review
@@ -52,10 +52,12 @@ UniSkillHub/
 ├─ Resources/        Browse, details, Download.ashx (shared public pages)
 ├─ Assignments/      Download.ashx for assignment briefs and submissions
 ├─ Forum/            Forum list, post details, create post
-├─ App_Code/         DBHelper, PasswordHelper, Utility, FileHelper
+├─ App_Code/         DBHelper, PasswordHelper, Utility, FileHelper, Logger, AccountCheck, GeminiHelper
 ├─ Css/  Scripts/    site.css, site.js, validation.js, quiz.js, admin.js
 ├─ Uploads/          Notes, Assignments (private), Videos, Audio
+├─ Images/           SVG illustrations: one per resource category, About page, empty states
 ├─ Database/         UniSkillHubDB.sql, CreateAdmin.sql, SampleData.sql
+├─ Secrets.config.example   Template for your (uncommitted) Gemini API key
 ├─ Site.Master       Shared layout; navigation changes with the user's role
 ├─ Error.aspx        Friendly page for 400 / 404 / 500 errors
 └─ Web.config        Connection string, Forms Authentication, upload limits
@@ -105,11 +107,19 @@ Students create their own accounts on the Register page.
 
 ## Security
 
-- **Passwords** – PBKDF2 (SHA-256, 100,000 iterations) with a random salt per user; compared in constant
-  time; plaintext is never stored or logged.
+- **Passwords** – PBKDF2 (SHA-256, 600,000 iterations) with a random salt per user; compared in constant
+  time; plaintext is never stored or logged. The iteration count is stored inside the hash
+  (`pbkdf2$600000$...`), and older accounts (100,000 iterations) are re-hashed automatically the next time
+  they log in. The work is done by Windows' native crypto library (about 0.14 s per hash instead of over 1 s
+  with the .NET Framework class) and falls back to the .NET class if that is unavailable.
+- **Error log** – unexpected errors are written to `App_Data/Logs/error-yyyyMMdd.log` (`App_Code/Logger.cs`).
+  Visitors only see the friendly message; the log holds the real exception. The IIS application-pool identity
+  needs write permission on `App_Data`. Never passwords or form values are logged.
 - **SQL injection** – every query is parameterized; `LIKE` searches escape `[`, `%` and `_`.
 - **Authorization is enforced on the server** – folder rules in `Web.config`, plus `Global.asax` checks the
-  account in the database on every page request, so a deactivated or demoted user loses access immediately.
+  account on every page request, so a deactivated or demoted user loses access immediately. The answer is kept
+  for 30 seconds (`App_Code/AccountCheck.cs`) to save a database query per page, and it is cleared the moment
+  an admin changes or deletes that user.
   Ownership (e.g. "my submission", "my reply") is checked inside the SQL statement.
 - **Forms Authentication** – HttpOnly, SameSite=Lax cookie, 30-minute sliding expiry; the return URL is
   validated to prevent open redirects; login errors are generic.
@@ -157,21 +167,63 @@ Edge screenshots at desktop width. Recent suite results:
 | Announcement CRUD + forum moderation  | 84/84  |
 | Multimedia (video/audio) pages         | 21/21  |
 | Form validation & error handling       | 72/72  |
+| Images (files, alt text, category tiles, no broken images) | 24/24 |
 | Security (CSRF, logout, brute force, access matrix, cross-user access, exposure, headers) | 62/62 |
 
 Some older suites hard-code sample-data assumptions (e.g. "exactly 3 forum posts") and now report
 mismatches because real data (a forum post created by a registered student) and newer sample assignments exist;
 these are stale expectations, not site errors.
 
+## Multimedia
+
+- **Video and audio** – HTML5 `<video controls>` / `<audio controls>` players on the resource page (WebM, MP4, OGG,
+  MP3, WAV); a short demo video and audio clip are included.
+- **Images** – small SVG illustrations in `Images/` (a picture per category shown on the home page, resource cards
+  and resource details; an illustration on the About page and on empty/error pages). They use `alt` text, explicit
+  `width`/`height` and `loading="lazy"`, and the whole set is about 15 KB. Decorative pictures use `alt=""`.
+- **Interactive content** – the timed online quiz with instant scoring and answer review.
+
+## Optional: AI note summarization (Google Gemini)
+
+A logged-in user who opens a **PDF or plain-text (.txt)** resource sees a **Summarize with AI** button. The file is
+sent to Google's Gemini API and a short summary (overview, bullet points, key terms) is shown on the page. The rest of
+the site does not depend on it: **without an API key the button is simply not shown.**
+
+**Set-up (once per computer)**
+1. Get a free key at <https://aistudio.google.com/apikey>.
+2. Copy `Secrets.config.example` to `Secrets.config` (same folder as `Web.config`) and paste the key into it.
+3. Restart the site (in Visual Studio: stop, then run again).
+
+**How it works** – `App_Code/GeminiHelper.cs` builds a small JSON request, sends it with `HttpWebRequest` (the key
+goes in an `x-goog-api-key` header, never in the URL) and reads the text from `candidates[0].content.parts`.
+`Resources/ResourceDetails.aspx.cs` (`btnSummarize_Click`) shows the result.
+
+**Safety and cost**
+- `Secrets.config` is in `.gitignore` and ASP.NET never serves `.config` files, so the key is not in git or on the web.
+- Only logged-in users can use it. The file path is read again from the database on every click (draft resources are
+  refused for students) and must lie inside `/Uploads`; files over 8 MB are not sent.
+- Each user may make 5 summaries per hour, and a summary is remembered for 24 hours so asking again for the same file
+  costs nothing. Failed calls do not count against the 5.
+- The AI's answer is untrusted text: it is HTML-encoded before it is shown, so it can never run as script.
+- Google errors (busy, bad key, timeout, no answer) show a friendly message; the details go to `App_Data/Logs`
+  (the key is never logged).
+- **Privacy:** the content of the file is sent to Google. The button says so.
+
 ## Known limitations / not done yet
 
 - The multimedia demo is a short generated video (WebM) and audio clip (WAV); replace them with real lectures via Admin > Resources.
 - The login throttle and the logout blacklist live in memory, so they reset when the site restarts (a copied cookie
   would then work again until its normal expiry). A production system would keep them in the database.
-- Before publishing behind HTTPS: set `requireSSL="true"` on `<httpCookies>` and `<forms>`, set
-  `<compilation debug="false">`, add `Strict-Transport-Security`, and change the default admin password.
+- `Web.Release.config` already switches `debug` off, sets `requireSSL="true"` on `<httpCookies>` and `<forms>`
+  and adds `Strict-Transport-Security` when the site is published with the Release configuration - only publish
+  it to a site that has an HTTPS certificate. Still to do by hand: change the default admin password.
+- The Content-Security-Policy only restricts framing, forms and plug-ins; a `script-src` rule would need the
+  inline script in `Site.Master` moved to a file or given a nonce.
+- Video and audio files are served directly from `Uploads/Videos` and `Uploads/Audio` (the HTML5 players need a
+  plain URL), so anyone who knows a file's address can open it without logging in, even if its resource is a draft.
 - There is no CAPTCHA or e-mail verification on registration, and no rate limit on forum posting.
 - IIS Express answers HTTP range requests with 200; real IIS returns 206 so video seeking is smoother.
-- Landing page does not yet pull featured content from the database.
-- The optional AI note-summarization idea is intentionally **not** implemented.
+- AI summaries need your own Google Gemini API key, and the model name in `Web.config` (`GeminiModel`) may need
+  updating when Google retires a model. The feature was tested against a stand-in server that copies Gemini's
+  request/response format, not against Google itself, so try it once with your real key before the demo.
 - Remaining planned work: responsive testing across devices, integration testing and bug fixing.

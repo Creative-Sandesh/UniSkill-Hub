@@ -237,8 +237,9 @@ namespace UniSkillHub.Admin
                     if (rows == 0) { ShowMessage("That quiz no longer exists.", false); pnlForm.Visible = false; return; }
                 }
             }
-            catch (SqlException)
+            catch (SqlException ex)
             {
+                Logger.Error("ManageQuizzes: could not save the quiz", ex);
                 ShowMessage("Sorry, the quiz could not be saved right now. Please try again.", false);
                 return;
             }

@@ -283,8 +283,9 @@ namespace UniSkillHub.Admin
                     if (rows == 0) { ShowMessage("That question no longer exists.", false); pnlForm.Visible = false; return; }
                 }
             }
-            catch (SqlException)
+            catch (SqlException ex)
             {
+                Logger.Error("ManageQuestions: could not save the question", ex);
                 ShowMessage("Sorry, the question could not be saved right now. Please try again.", false);
                 return;
             }

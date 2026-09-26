@@ -73,8 +73,9 @@ namespace UniSkillHub.Account
                     "FROM Users WHERE Username = @Identifier OR Email = @Identifier",
                     DBHelper.Param("@Identifier", identifier));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("Login: could not read the user from the database", ex);
                 ShowError("Sorry, we could not log you in right now. Please try again later.");
                 return;
             }
@@ -110,12 +111,35 @@ namespace UniSkillHub.Account
             string role = (string)user["Role"];
             int userId = (int)user["UserID"];
 
+            UpgradeOldHash(userId, password, (string)user["PasswordHash"]);
+
             SignIn(username, role, userId, chkRemember.Checked);
 
             // Go back to the page the user originally asked for (if it is safe),
             // otherwise to the dashboard of their role.
             string target = Utility.GetSafeReturnUrl(Request.QueryString["ReturnUrl"], role);
             Response.Redirect(target ?? Utility.DashboardUrlForRole(role));
+        }
+
+        // The password was just checked, so this is the one moment we can re-hash it with the current,
+        // stronger settings. A failure here must not stop the login, so it is only logged.
+        private static void UpgradeOldHash(int userId, string password, string storedHash)
+        {
+            if (!PasswordHelper.NeedsRehash(storedHash)) return;
+
+            try
+            {
+                string salt = PasswordHelper.GenerateSalt();
+                DBHelper.ExecuteNonQuery(
+                    "UPDATE Users SET PasswordHash = @Hash, PasswordSalt = @Salt WHERE UserID = @UserID",
+                    DBHelper.Param("@Hash", PasswordHelper.HashPassword(password, salt)),
+                    DBHelper.Param("@Salt", salt),
+                    DBHelper.Param("@UserID", userId));
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Login: could not upgrade the password hash of user " + userId, ex);
+            }
         }
 
         // Creates the Forms Authentication cookie. The role and UserID are stored
@@ -132,6 +156,7 @@ namespace UniSkillHub.Account
             HttpCookie cookie = new HttpCookie(FormsAuthentication.FormsCookieName, FormsAuthentication.Encrypt(ticket));
             cookie.HttpOnly = true;
             cookie.SameSite = SameSiteMode.Lax;   // not sent on cross-site form posts
+            cookie.Secure = FormsAuthentication.RequireSSL;   // true once requireSSL is switched on (Web.Release.config)
             if (persistent) cookie.Expires = expires;
 
             Response.Cookies.Add(cookie);

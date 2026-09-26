@@ -342,8 +342,9 @@ namespace UniSkillHub.Admin
                         "MaxMarks = @MaxMarks, FilePath = @FilePath, Status = @Status WHERE AssignmentID = @Id", p.ToArray());
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("ManageAssignments: could not save the assignment", ex);
                 if (newFile != null) FileHelper.DeleteUploadedFile(Context, newFile);   // no orphan file
                 ShowMessage("Sorry, the assignment could not be saved right now. Please try again.", false);
                 return;

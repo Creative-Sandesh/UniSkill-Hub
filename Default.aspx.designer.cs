@@ -13,5 +13,11 @@ namespace UniSkillHub
 
     public partial class _Default
     {
+
+        /// <summary>pnlCategories control.</summary>
+        protected global::System.Web.UI.WebControls.Panel pnlCategories;
+
+        /// <summary>rptCategories control.</summary>
+        protected global::System.Web.UI.WebControls.Repeater rptCategories;
     }
 }

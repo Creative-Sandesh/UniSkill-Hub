@@ -3,6 +3,7 @@
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="container py-5">
         <div class="empty-state" role="alert">
+            <img class="empty-art" src="<%: ResolveUrl("~/Images/empty-search.svg") %>" alt="" width="480" height="320" />
             <h1 class="h3"><asp:Literal ID="litHeading" runat="server"></asp:Literal></h1>
             <p><asp:Literal ID="litMessage" runat="server"></asp:Literal></p>
             <div class="d-flex flex-wrap gap-2 justify-content-center">

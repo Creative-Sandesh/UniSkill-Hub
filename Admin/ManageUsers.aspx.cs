@@ -155,6 +155,8 @@ namespace UniSkillHub.Admin
                 DBHelper.Param("@UserID", userId),
                 DBHelper.Param("@Me", Utility.CurrentUserId));
 
+            AccountCheck.Forget(userId);   // so a deactivated user is signed out on their very next request
+
             Response.Redirect(ListUrl(CurrentPage(), wasActive ? "deactivated" : "activated"));
         }
 
@@ -176,9 +178,12 @@ namespace UniSkillHub.Admin
                     DBHelper.Param("@Me", Utility.CurrentUserId));
 
                 if (rows == 0) { ShowMessage("That user no longer exists.", false); return; }
+
+                AccountCheck.Forget(userId);
             }
             catch (SqlException ex)
             {
+                if (ex.Number != 547) Logger.Error("ManageUsers: could not delete user " + userId, ex);
                 // 547 = foreign key conflict: this user has related records
                 ShowMessage(ex.Number == 547
                     ? "This user has activity (submissions, quiz attempts, posts or content), so it cannot be deleted. Deactivate the account instead."
@@ -326,6 +331,7 @@ namespace UniSkillHub.Admin
             catch (SqlException ex)
             {
                 bool duplicate = (ex.Number == 2627 || ex.Number == 2601);
+                if (!duplicate) Logger.Error("ManageUsers: could not save the user", ex);
                 ShowMessage(duplicate ? "That username or email is already in use."
                                       : "Sorry, the user could not be saved right now.", false);
             }
@@ -362,6 +368,8 @@ namespace UniSkillHub.Admin
 
             // the column names come from this method only, never from the user
             DBHelper.ExecuteNonQuery("UPDATE Users SET " + string.Join(", ", sets) + " WHERE UserID = @UserID", parameters.ToArray());
+
+            AccountCheck.Forget(userId);   // a changed role or status applies on the user's very next request
         }
 
         // ---------- helpers used by the page markup ----------

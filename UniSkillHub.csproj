@@ -126,6 +126,14 @@
     <Content Include="Uploads\Videos\Web.config" />
     <Content Include="Uploads\Audio\listening-demo.wav" />
     <Content Include="Uploads\Videos\getting-started-demo.webm" />
+    <Content Include="Images\hero-learning.svg" />
+    <Content Include="Images\empty-search.svg" />
+    <Content Include="Images\categories\programming.svg" />
+    <Content Include="Images\categories\database.svg" />
+    <Content Include="Images\categories\web-development.svg" />
+    <Content Include="Images\categories\networking.svg" />
+    <Content Include="Images\categories\hci.svg" />
+    <Content Include="Images\categories\default.svg" />
     <Content Include="Student\Quizzes.aspx" />
     <Content Include="Student\TakeQuiz.aspx" />
     <Content Include="Student\QuizResult.aspx" />
@@ -196,6 +204,7 @@
     <Content Include="Content\bootstrap-grid.min.css.map" />
     <Content Include="Content\bootstrap-grid.css.map" />
     <Content Include="prompt.md" />
+    <None Include=".editorconfig" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -231,8 +240,11 @@
     <Content Include="Site.Mobile.Master" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Code\AccountCheck.cs" />
     <Compile Include="App_Code\DBHelper.cs" />
+    <Compile Include="App_Code\Logger.cs" />
     <Compile Include="App_Code\FileHelper.cs" />
+    <Compile Include="App_Code\GeminiHelper.cs" />
     <Compile Include="App_Code\PasswordHelper.cs" />
     <Compile Include="App_Code\LoginThrottle.cs" />
     <Compile Include="App_Code\SessionRevocation.cs" />

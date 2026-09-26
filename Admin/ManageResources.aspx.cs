@@ -380,8 +380,9 @@ namespace UniSkillHub.Admin
 
                 SaveRow(id, now);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error("ManageResources: could not save the resource", ex);
                 if (newFile != null) FileHelper.DeleteUploadedFile(Context, newFile);   // no orphan file
                 ShowMessage("Sorry, the resource could not be saved right now. Please try again.", false);
                 return;

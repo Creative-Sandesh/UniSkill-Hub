@@ -9,6 +9,9 @@ namespace UniSkillHub.Resources
 {
     public partial class BrowseResources : Page
     {
+        // Used by the card markup (it cannot name the App_Code helper class directly).
+        protected string CategoryImage(object categoryName) { return Utility.CategoryImageUrl(categoryName); }
+
         private const int PageSize = 6;
         private static readonly string[] ResourceTypes = { "PDF", "Video", "Audio", "Article", "Link" };
 
