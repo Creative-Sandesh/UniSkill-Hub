@@ -47,6 +47,21 @@
                         <asp:Panel ID="pnlAttachment" runat="server" Visible="false" CssClass="mt-4">
                             <a id="lnkInstructions" runat="server" class="btn btn-outline-primary" href="~/Assignments/Download.ashx">Download instructions</a>
                         </asp:Panel>
+
+                        <%-- Optional AI help: explains what the task is asking. It never writes the answer. --%>
+                        <asp:Panel ID="pnlSummarize" runat="server" Visible="false" CssClass="mt-4">
+                            <asp:Button ID="btnSummarize" runat="server" Text="Summarize assignment with AI" CssClass="btn btn-outline-primary"
+                                CausesValidation="false" OnClick="btnSummarize_Click"
+                                OnClientClick="this.value = 'Summarizing, please wait...';" />
+                            <p class="form-text mt-2 mb-0"><asp:Literal ID="litAiNote" runat="server"></asp:Literal></p>
+                        </asp:Panel>
+
+                        <asp:Panel ID="pnlSummary" runat="server" Visible="false" CssClass="ai-summary" aria-live="polite">
+                            <h2 class="h5">AI explanation of this assignment</h2>
+                            <div class="resource-description"><asp:Literal ID="litSummary" runat="server"></asp:Literal></div>
+                            <p class="form-text mb-0">Written by AI, so it can contain mistakes. The assignment above is what counts. The AI explains the task but does not do it for you.</p>
+                        </asp:Panel>
+                        <asp:Label ID="lblSummaryError" runat="server" Visible="false" CssClass="alert alert-danger d-block mt-4 mb-0" role="alert"></asp:Label>
                     </article>
                 </div>
 

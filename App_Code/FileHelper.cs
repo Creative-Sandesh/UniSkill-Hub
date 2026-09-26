@@ -31,7 +31,7 @@ namespace UniSkillHub
         /// </summary>
         public static bool ContentMatchesExtension(HttpPostedFile file)
         {
-            byte[] head = new byte[512];
+            byte[] head = new byte[1024];
             int read;
 
             file.InputStream.Position = 0;
@@ -43,7 +43,9 @@ namespace UniSkillHub
             switch (Path.GetExtension(file.FileName).ToLowerInvariant())
             {
                 case ".pdf":
-                    return StartsWith(head, read, new byte[] { 0x25, 0x50, 0x44, 0x46 });                 // %PDF
+                    // "%PDF" normally is the very first thing, but the PDF format allows a few blank lines
+                    // (or similar) before it and some programs write them, so look in the first 1 KB.
+                    return Contains(head, read, new byte[] { 0x25, 0x50, 0x44, 0x46 });
                 case ".zip":
                 case ".docx":
                 case ".pptx":
@@ -67,6 +69,9 @@ namespace UniSkillHub
                     return read >= 12 && StartsWith(head, read, new byte[] { 0x52, 0x49, 0x46, 0x46 }) &&
                            head[8] == 0x57 && head[9] == 0x41 && head[10] == 0x56 && head[11] == 0x45;
                 case ".txt":
+                    // Notepad's "Unicode" text files (UTF-16) start with a byte order mark and contain NUL bytes.
+                    if (StartsWith(head, read, new byte[] { 0xFF, 0xFE }) || StartsWith(head, read, new byte[] { 0xFE, 0xFF })) return true;
+
                     for (int i = 0; i < read; i++)
                     {
                         if (head[i] == 0) return false;   // plain text never contains NUL bytes
@@ -178,6 +183,21 @@ namespace UniSkillHub
                 case ".wav": return "audio/wav";
                 default: return "application/octet-stream";
             }
+        }
+
+        // True if the signature appears anywhere in the first "length" bytes.
+        private static bool Contains(byte[] data, int length, byte[] signature)
+        {
+            for (int start = 0; start + signature.Length <= length; start++)
+            {
+                bool match = true;
+                for (int i = 0; i < signature.Length && match; i++)
+                {
+                    if (data[start + i] != signature[i]) match = false;
+                }
+                if (match) return true;
+            }
+            return false;
         }
 
         private static bool StartsWith(byte[] data, int length, byte[] signature)

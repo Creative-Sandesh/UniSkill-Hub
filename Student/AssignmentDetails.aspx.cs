@@ -65,6 +65,81 @@ namespace UniSkillHub.Student
 
             ShowSubmission(row, hasSubmission, subStatus);
             ShowSubmitButton(assignmentId, hasSubmission, subStatus, isPastDue);
+            ShowSummarizeButton();
+        }
+
+        // ---------- optional AI explanation ----------
+
+        // The button is always shown so students can find it; without an API key it is disabled and says why.
+        private void ShowSummarizeButton()
+        {
+            pnlSummarize.Visible = true;
+
+            if (GeminiHelper.IsConfigured)
+            {
+                litAiNote.Text = "The text of this assignment (and its attached brief) is sent to Google Gemini. This can take up to a minute.";
+            }
+            else
+            {
+                btnSummarize.Enabled = false;
+                btnSummarize.Text = "Summarize assignment with AI (not set up yet)";
+                litAiNote.Text = "AI summaries are not switched on yet: the administrator has to add a Gemini API key.";
+            }
+        }
+
+        protected void btnSummarize_Click(object sender, EventArgs e)
+        {
+            // Page_Load does not run its checks on a postback, so everything is read and checked again here.
+            int assignmentId;
+            if (!int.TryParse(Request.QueryString["id"], out assignmentId)) return;
+
+            DataTable dt = DBHelper.GetDataTable(
+                "SELECT Title, Description, Instructions, DueDate, MaxMarks, FilePath FROM Assignments " +
+                "WHERE AssignmentID = @AssignmentID AND Status = 'Published'",
+                DBHelper.Param("@AssignmentID", assignmentId));
+
+            if (dt.Rows.Count == 0)
+            {
+                ShowSummaryError("A summary is not available for this assignment.");
+                return;
+            }
+
+            DataRow row = dt.Rows[0];
+            string text =
+                "Title: " + (string)row["Title"] + "\n" +
+                "Due: " + ((DateTime)row["DueDate"]).ToString("dd MMM yyyy, h:mm tt") + "\n" +
+                "Maximum marks: " + row["MaxMarks"] + "\n\n" +
+                "Description:\n" + (string)row["Description"] + "\n\n" +
+                "Instructions:\n" + (row["Instructions"] as string ?? "(none)");
+
+            // The attached brief (if any) is found through the database, and must lie inside /Uploads.
+            string filePath = row["FilePath"] as string;
+            string fullPath = filePath == null ? null : FileHelper.ResolveInsideUploads(Context, filePath);
+
+            try
+            {
+                string summary = GeminiHelper.GetAssignmentSummary(Utility.CurrentUserId, assignmentId, text, fullPath);
+
+                // The AI's text is untrusted: encode it first, then turn line breaks into HTML.
+                litSummary.Text = "<p>" + Server.HtmlEncode(summary).Replace("**", "")
+                    .Replace("\r\n", "\n").Replace("\n\n", "</p><p>").Replace("\n", "<br />") + "</p>";
+                pnlSummary.Visible = true;
+            }
+            catch (GeminiException ex)
+            {
+                ShowSummaryError(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("AssignmentDetails: could not summarize assignment " + assignmentId, ex);
+                ShowSummaryError("Sorry, the summary could not be made right now. Please try again later.");
+            }
+        }
+
+        private void ShowSummaryError(string message)
+        {
+            lblSummaryError.Text = Server.HtmlEncode(message);
+            lblSummaryError.Visible = true;
         }
 
         private void ShowSubmission(DataRow row, bool hasSubmission, string subStatus)

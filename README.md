@@ -79,6 +79,8 @@ Rules worth knowing:
 
 ## Setup
 
+> A step-by-step guide for a new computer (install, database, run, troubleshooting) is in **[SETUP.md](SETUP.md)**.
+
 **Requirements:** Visual Studio 2022 (ASP.NET workload), .NET Framework 4.8, SQL Server Express with an
 instance named `SQLEXPRESS`.
 
@@ -185,14 +187,23 @@ these are stale expectations, not site errors.
 
 ## Optional: AI note summarization (Google Gemini)
 
-A logged-in user who opens a **PDF or plain-text (.txt)** resource sees a **Summarize with AI** button. The file is
-sent to Google's Gemini API and a short summary (overview, bullet points, key terms) is shown on the page. The rest of
-the site does not depend on it: **without an API key the button is simply not shown.**
+There are two places where a logged-in user sees an AI button:
+- **Assignments** (`Student/AssignmentDetails`): **Summarize assignment with AI** explains what the task asks for - a short
+  overview, the steps / things to hand in, and a "Watch out" line with the deadline and marks. It uses the assignment's
+  description and instructions, plus the attached brief when that is a PDF or .txt file. The prompt tells the AI to
+  explain the task only and never to write the answer.
+- **Resources** (`Resources/ResourceDetails`): **Summarize with AI** on a **PDF or plain-text (.txt)** resource gives an
+  overview, bullet points and key terms of the lecture notes.
+
+The rest of the site does not depend on it: **without an API key the button is shown disabled** ("not set up yet") with a
+note that the administrator has to add a key.
 
 **Set-up (once per computer)**
 1. Get a free key at <https://aistudio.google.com/apikey>.
 2. Copy `Secrets.config.example` to `Secrets.config` (same folder as `Web.config`) and paste the key into it.
-3. Restart the site (in Visual Studio: stop, then run again).
+3. Save the file and reload a PDF resource page - no restart is needed. (The file must keep the shape of the
+   example. If it is empty or broken it is ignored and a note is written to `App_Data/Logs`; the rest of the site is
+   not affected.)
 
 **How it works** – `App_Code/GeminiHelper.cs` builds a small JSON request, sends it with `HttpWebRequest` (the key
 goes in an `x-goog-api-key` header, never in the URL) and reads the text from `candidates[0].content.parts`.

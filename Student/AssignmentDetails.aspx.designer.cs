@@ -50,6 +50,24 @@ namespace UniSkillHub.Student
         /// <summary>lnkInstructions control.</summary>
         protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkInstructions;
 
+        /// <summary>pnlSummarize control.</summary>
+        protected global::System.Web.UI.WebControls.Panel pnlSummarize;
+
+        /// <summary>btnSummarize control.</summary>
+        protected global::System.Web.UI.WebControls.Button btnSummarize;
+
+        /// <summary>litAiNote control.</summary>
+        protected global::System.Web.UI.WebControls.Literal litAiNote;
+
+        /// <summary>pnlSummary control.</summary>
+        protected global::System.Web.UI.WebControls.Panel pnlSummary;
+
+        /// <summary>litSummary control.</summary>
+        protected global::System.Web.UI.WebControls.Literal litSummary;
+
+        /// <summary>lblSummaryError control.</summary>
+        protected global::System.Web.UI.WebControls.Label lblSummaryError;
+
         /// <summary>pnlNoSubmission control.</summary>
         protected global::System.Web.UI.WebControls.Panel pnlNoSubmission;
 

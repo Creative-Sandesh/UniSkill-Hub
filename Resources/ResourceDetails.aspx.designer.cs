@@ -110,6 +110,11 @@ namespace UniSkillHub.Resources
         protected global::System.Web.UI.WebControls.Button btnSummarize;
 
         /// <summary>
+        /// litAiNote control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal litAiNote;
+
+        /// <summary>
         /// pnlLink control.
         /// </summary>
         protected global::System.Web.UI.WebControls.Panel pnlLink;

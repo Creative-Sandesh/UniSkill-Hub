@@ -72,7 +72,7 @@
                                 <asp:Button ID="btnSummarize" runat="server" Text="Summarize with AI" CssClass="btn btn-outline-primary w-100"
                                     CausesValidation="false" OnClick="btnSummarize_Click"
                                     OnClientClick="this.value = 'Summarizing, please wait...';" />
-                                <p class="form-text mt-2 mb-0">The text of this file is sent to Google Gemini to write the summary. This can take up to a minute.</p>
+                                <p class="form-text mt-2 mb-0"><asp:Literal ID="litAiNote" runat="server"></asp:Literal></p>
                             </asp:Panel>
                         </asp:Panel>
 
