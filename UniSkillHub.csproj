@@ -244,7 +244,7 @@
     <Compile Include="App_Code\DBHelper.cs" />
     <Compile Include="App_Code\Logger.cs" />
     <Compile Include="App_Code\FileHelper.cs" />
-    <Compile Include="App_Code\GeminiHelper.cs" />
+    <Compile Include="App_Code\MistralHelper.cs" />
     <Compile Include="App_Code\PasswordHelper.cs" />
     <Compile Include="App_Code\LoginThrottle.cs" />
     <Compile Include="App_Code\SessionRevocation.cs" />

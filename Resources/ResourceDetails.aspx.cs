@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data;
 using System.IO;
 using System.Web;
@@ -107,19 +107,19 @@ namespace UniSkillHub.Resources
                     litFileName.Text = Server.HtmlEncode(Path.GetFileName(filePath));
                     lnkDownload.HRef = "~/Resources/Download.ashx?id=" + resourceId;
 
-                    // Optional AI summary: shown for PDF/TXT files. Without a Gemini key it is disabled and says why.
-                    if (GeminiHelper.CanSummarize(filePath))
+                    // Optional AI summary: shown for PDF/TXT files. Without a Mistral key it is disabled and says why.
+                    if (MistralHelper.CanSummarize(filePath))
                     {
                         pnlSummarize.Visible = true;
-                        if (GeminiHelper.IsConfigured)
+                        if (MistralHelper.IsConfigured)
                         {
-                            litAiNote.Text = "The text of this file is sent to Google Gemini to write the summary. This can take up to a minute.";
+                            litAiNote.Text = "The text of this file is sent to Mistral AI to write the summary. This can take up to a minute.";
                         }
                         else
                         {
                             btnSummarize.Enabled = false;
                             btnSummarize.Text = "Summarize with AI (not set up yet)";
-                            litAiNote.Text = "AI summaries are not switched on yet: the administrator has to add a Gemini API key.";
+                            litAiNote.Text = "AI summaries are not switched on yet: the administrator has to add a Mistral API key.";
                         }
                     }
                 }
@@ -163,7 +163,7 @@ namespace UniSkillHub.Resources
             string filePath = dt.Rows.Count == 0 ? null : (string)dt.Rows[0]["FilePath"];
             string fullPath = FileHelper.ResolveInsideUploads(Context, filePath);
 
-            if (fullPath == null || !GeminiHelper.CanSummarize(filePath))
+            if (fullPath == null || !MistralHelper.CanSummarize(filePath))
             {
                 ShowSummaryError("A summary is not available for this resource.");
                 return;
@@ -171,14 +171,14 @@ namespace UniSkillHub.Resources
 
             try
             {
-                string summary = GeminiHelper.GetSummary(Utility.CurrentUserId, fullPath);
+                string summary = MistralHelper.GetSummary(Utility.CurrentUserId, fullPath);
 
                 // The AI's text is untrusted: encode it first, then turn line breaks into HTML.
                 litSummary.Text = "<p>" + Server.HtmlEncode(summary).Replace("**", "")
                     .Replace("\r\n", "\n").Replace("\n\n", "</p><p>").Replace("\n", "<br />") + "</p>";
                 pnlSummary.Visible = true;
             }
-            catch (GeminiException ex)
+            catch (MistralException ex)
             {
                 ShowSummaryError(ex.Message);
             }

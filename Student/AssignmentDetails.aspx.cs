@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data;
 using System.Web.UI;
 
@@ -75,15 +75,15 @@ namespace UniSkillHub.Student
         {
             pnlSummarize.Visible = true;
 
-            if (GeminiHelper.IsConfigured)
+            if (MistralHelper.IsConfigured)
             {
-                litAiNote.Text = "The text of this assignment (and its attached brief) is sent to Google Gemini. This can take up to a minute.";
+                litAiNote.Text = "The text of this assignment (and its attached brief) is sent to Mistral AI. This can take up to a minute.";
             }
             else
             {
                 btnSummarize.Enabled = false;
                 btnSummarize.Text = "Summarize assignment with AI (not set up yet)";
-                litAiNote.Text = "AI summaries are not switched on yet: the administrator has to add a Gemini API key.";
+                litAiNote.Text = "AI summaries are not switched on yet: the administrator has to add a Mistral API key.";
             }
         }
 
@@ -118,14 +118,14 @@ namespace UniSkillHub.Student
 
             try
             {
-                string summary = GeminiHelper.GetAssignmentSummary(Utility.CurrentUserId, assignmentId, text, fullPath);
+                string summary = MistralHelper.GetAssignmentSummary(Utility.CurrentUserId, assignmentId, text, fullPath);
 
                 // The AI's text is untrusted: encode it first, then turn line breaks into HTML.
                 litSummary.Text = "<p>" + Server.HtmlEncode(summary).Replace("**", "")
                     .Replace("\r\n", "\n").Replace("\n\n", "</p><p>").Replace("\n", "<br />") + "</p>";
                 pnlSummary.Visible = true;
             }
-            catch (GeminiException ex)
+            catch (MistralException ex)
             {
                 ShowSummaryError(ex.Message);
             }

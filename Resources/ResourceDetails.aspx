@@ -1,4 +1,4 @@
-<%@ Page Title="Resource" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="ResourceDetails.aspx.cs" Inherits="UniSkillHub.Resources.ResourceDetails" %>
+﻿<%@ Page Title="Resource" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="ResourceDetails.aspx.cs" Inherits="UniSkillHub.Resources.ResourceDetails" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
 
@@ -67,7 +67,7 @@
                             <p class="mb-3">File: <strong><asp:Literal ID="litFileName" runat="server"></asp:Literal></strong></p>
                             <a id="lnkDownload" runat="server" class="btn btn-primary w-100" href="~/Resources/Download.ashx">Download file</a>
 
-                            <%-- Optional AI feature: only shown to logged-in users, for PDF/TXT files, when a Gemini key is set up --%>
+                            <%-- Optional AI feature: only shown to logged-in users, for PDF/TXT files, when a Mistral key is set up --%>
                             <asp:Panel ID="pnlSummarize" runat="server" Visible="false" CssClass="mt-3">
                                 <asp:Button ID="btnSummarize" runat="server" Text="Summarize with AI" CssClass="btn btn-outline-primary w-100"
                                     CausesValidation="false" OnClick="btnSummarize_Click"

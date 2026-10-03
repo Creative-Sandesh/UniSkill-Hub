@@ -52,12 +52,12 @@ UniSkillHub/
 ├─ Resources/        Browse, details, Download.ashx (shared public pages)
 ├─ Assignments/      Download.ashx for assignment briefs and submissions
 ├─ Forum/            Forum list, post details, create post
-├─ App_Code/         DBHelper, PasswordHelper, Utility, FileHelper, Logger, AccountCheck, GeminiHelper
+├─ App_Code/         DBHelper, PasswordHelper, Utility, FileHelper, Logger, AccountCheck, MistralHelper
 ├─ Css/  Scripts/    site.css, site.js, validation.js, quiz.js, admin.js
 ├─ Uploads/          Notes, Assignments (private), Videos, Audio
 ├─ Images/           SVG illustrations: one per resource category, About page, empty states
 ├─ Database/         UniSkillHubDB.sql, CreateAdmin.sql, SampleData.sql
-├─ Secrets.config.example   Template for your (uncommitted) Gemini API key
+├─ Secrets.config.example   Template for your (uncommitted) Mistral API key
 ├─ Site.Master       Shared layout; navigation changes with the user's role
 ├─ Error.aspx        Friendly page for 400 / 404 / 500 errors
 └─ Web.config        Connection string, Forms Authentication, upload limits
@@ -185,7 +185,7 @@ these are stale expectations, not site errors.
   `width`/`height` and `loading="lazy"`, and the whole set is about 15 KB. Decorative pictures use `alt=""`.
 - **Interactive content** – the timed online quiz with instant scoring and answer review.
 
-## Optional: AI note summarization (Google Gemini)
+## Optional: AI note summarization (Mistral AI)
 
 There are two places where a logged-in user sees an AI button:
 - **Assignments** (`Student/AssignmentDetails`): **Summarize assignment with AI** explains what the task asks for - a short
@@ -199,14 +199,14 @@ The rest of the site does not depend on it: **without an API key the button is s
 note that the administrator has to add a key.
 
 **Set-up (once per computer)**
-1. Get a free key at <https://aistudio.google.com/apikey>.
+1. Get a key at <https://console.mistral.ai/api-keys>.
 2. Copy `Secrets.config.example` to `Secrets.config` (same folder as `Web.config`) and paste the key into it.
 3. Save the file and reload a PDF resource page - no restart is needed. (The file must keep the shape of the
    example. If it is empty or broken it is ignored and a note is written to `App_Data/Logs`; the rest of the site is
    not affected.)
 
-**How it works** – `App_Code/GeminiHelper.cs` builds a small JSON request, sends it with `HttpWebRequest` (the key
-goes in an `x-goog-api-key` header, never in the URL) and reads the text from `candidates[0].content.parts`.
+**How it works** – `App_Code/MistralHelper.cs` builds a small JSON request, sends it with `HttpWebRequest` (the key
+goes in an `Authorization: Bearer` header, never in the URL) and reads the text from `choices[0].message.content`.
 `Resources/ResourceDetails.aspx.cs` (`btnSummarize_Click`) shows the result.
 
 **Safety and cost**
@@ -216,9 +216,9 @@ goes in an `x-goog-api-key` header, never in the URL) and reads the text from `c
 - Each user may make 5 summaries per hour, and a summary is remembered for 24 hours so asking again for the same file
   costs nothing. Failed calls do not count against the 5.
 - The AI's answer is untrusted text: it is HTML-encoded before it is shown, so it can never run as script.
-- Google errors (busy, bad key, timeout, no answer) show a friendly message; the details go to `App_Data/Logs`
+- Mistral errors (busy, bad key, timeout, no answer) show a friendly message; the details go to `App_Data/Logs`
   (the key is never logged).
-- **Privacy:** the content of the file is sent to Google. The button says so.
+- **Privacy:** the content of the file is sent to Mistral. The button says so.
 
 ## Known limitations / not done yet
 
@@ -234,7 +234,7 @@ goes in an `x-goog-api-key` header, never in the URL) and reads the text from `c
   plain URL), so anyone who knows a file's address can open it without logging in, even if its resource is a draft.
 - There is no CAPTCHA or e-mail verification on registration, and no rate limit on forum posting.
 - IIS Express answers HTTP range requests with 200; real IIS returns 206 so video seeking is smoother.
-- AI summaries need your own Google Gemini API key, and the model name in `Web.config` (`GeminiModel`) may need
-  updating when Google retires a model. The feature was tested against a stand-in server that copies Gemini's
-  request/response format, not against Google itself, so try it once with your real key before the demo.
+- AI summaries need your own Mistral AI API key, and the model name in `Web.config` (`MistralModel`) may need
+  updating when Mistral retires a model. The feature was tested against a stand-in server that copies Mistral's
+  request/response format, not against Mistral itself, so try it once with your real key before the demo.
 - Remaining planned work: responsive testing across devices, integration testing and bug fixing.
